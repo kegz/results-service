@@ -1,0 +1,13 @@
+import express from "express";
+import { RunController } from "../controllers/run.controller.js";
+import { authenticate } from "prime-qa-commons";
+
+const router = express.Router();
+
+router.post("/", authenticate, RunController.create);
+router.get("/:projectId", authenticate, RunController.getAll);
+router.get("/:id", authenticate, RunController.getById);
+router.put("/:id", authenticate, RunController.update);
+router.delete("/:id", authenticate, RunController.remove);
+
+export default router;

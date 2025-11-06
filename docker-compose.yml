@@ -1,0 +1,12 @@
+services:
+  results-service:
+    build: .
+    container_name: results-service
+    environment:
+      - PORT=8084
+      - NODE_ENV=production
+      - JWT_SECRET=super_secret_key
+      - MONGO_URI=mongodb+srv://kegzpeach:hlHe8HN2m8TgOB1F@tangomanagement.ngouqxc.mongodb.net/tcms_results
+    ports:
+      - "8084:8084"
+    restart: unless-stopped
