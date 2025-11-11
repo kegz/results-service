@@ -5,28 +5,60 @@ import { errorResponse, successResponse } from "prime-qa-commons";
 
 export const TestController = {
   // 🟢 Create a new Test (auto-link projectId from Run)
-  async create(req: Request, res: Response) {
-    try {
-      const { runId, testCaseId, title, suiteId, sectionId } = req.body;
+async create(req: Request, res: Response) {
+  try {
+    // ✅ Handle both array and single object
+    const isArray = Array.isArray(req.body);
 
-      const run = await RunModel.findById(runId);
-      
-      if (!run) return res.json(errorResponse("not found"));
+    // 🔍 Determine the runId properly
+    const runId = isArray ? req.body[0]?.runId : req.body.runId;
+    if (!runId) return res.json(errorResponse("Missing runId"));
+
+    // ✅ Validate that run exists
+    const run = await RunModel.findById(runId);
+    if (!run) return res.json(errorResponse("Run not found"));
+
+    if (isArray) {
+      // 🟩 Handle array of test creation requests
+      const createdTests = await Promise.all(
+        req.body.map(async (item: any) => {
+          const { testCaseId, title, suiteId, sectionId, projectId } = item;
+
+          // use projectId from run if not provided
+          return TestModel.create({
+            runId,
+            projectId: projectId || run.projectId,
+            testCaseId,
+            suiteId,
+            sectionId,
+            title,
+            isActive: item.isActive ?? true,
+          });
+        })
+      );
+
+      return res.json(successResponse(createdTests));
+    } else {
+      // 🟦 Handle single test creation
+      const { testCaseId, title, suiteId, sectionId, projectId } = req.body;
 
       const test = await TestModel.create({
         runId,
-        projectId: run.projectId,
+        projectId: projectId || run.projectId,
         testCaseId,
         suiteId,
         sectionId,
         title,
+        isActive: req.body.isActive ?? true,
       });
 
       return res.json(successResponse(test));
-    } catch (err: any) {
-      return res.json(errorResponse(err.message));
     }
-  },
+  } catch (err: any) {
+    console.error("❌ Create test(s) failed:", err);
+    return res.json(errorResponse(err.message));
+  }
+},
 
   // 🟢 Get all Tests (optionally filter by runId)
   async getAll(req: Request, res: Response) {
@@ -46,6 +78,32 @@ export const TestController = {
       const test = await TestModel.findById(req.params.id);
       if (!test) return res.json(errorResponse("not found"));
       return res.json(successResponse(test));
+    } catch (err: any) {
+      return res.json(errorResponse(err.message));
+    }
+  },
+
+  // 🟢 Get all Tests by Project ID
+  async getByProjectId(req: Request, res: Response) {
+    try {
+      const { projectId } = req.params;
+
+      // Fetch all tests linked to the given projectId
+      const tests = await TestModel.find({ projectId });
+
+      // ✅ Return total count and data
+      const total = tests.length;
+      if (!tests || total === 0) {
+        return res.json(errorResponse("No tests found for this project"));
+      }
+
+      return res.json(
+        successResponse({
+          total,
+          tests,
+        })
+      );
+
     } catch (err: any) {
       return res.json(errorResponse(err.message));
     }

@@ -6,7 +6,6 @@ const TestSchema = new Schema({
     suiteId: { type: Schema.Types.ObjectId, ref: "Suite" },
     sectionId: { type: Schema.Types.ObjectId, ref: "Section" },
     title: { type: String, required: true },
-    status: { type: String, enum: ["Not Started", "In Progress", "Completed"], default: "Not Started" },
     isActive: { type: Boolean, default: true }
 }, { timestamps: true });
 export const TestModel = mongoose.model("Test", TestSchema);

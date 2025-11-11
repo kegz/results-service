@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 const ResultSchema = new Schema({
     testId: { type: Schema.Types.ObjectId, ref: "Test", required: true },
+    projectId: { type: Schema.Types.ObjectId, ref: "Project", required: true },
     status: {
         type: String,
         enum: ["Passed", "Failed", "Blocked", "Skipped", "Retest"],

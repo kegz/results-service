@@ -7,7 +7,6 @@ export interface ITest extends Document {
   suiteId: Types.ObjectId;
   sectionId: Types.ObjectId;
   title: string;
-  status: "Not Started" | "In Progress" | "Completed";
   isActive: boolean;
 }
 
@@ -19,7 +18,6 @@ const TestSchema = new Schema<ITest>(
     suiteId: { type: Schema.Types.ObjectId, ref: "Suite" },
     sectionId: { type: Schema.Types.ObjectId, ref: "Section" },
     title: { type: String, required: true },
-    status: { type: String, enum: ["Not Started", "In Progress", "Completed"], default: "Not Started" },
     isActive: { type: Boolean, default: true }
   },
   { timestamps: true }

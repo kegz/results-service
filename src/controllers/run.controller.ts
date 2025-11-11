@@ -36,6 +36,31 @@ export const RunController = {
     }
   },
 
+  async getByProjectId(req: Request, res: Response) {
+    try {
+      const { projectId } = req.params;
+
+      // Fetch all tests linked to the given projectId
+      const data = await RunModel.find({ projectId });
+
+      // ✅ Return total count and data
+      const total = data.length;
+      if (!data || total === 0) {
+        return res.json(errorResponse("No runs found for this project"));
+      }
+
+      return res.json(
+        successResponse({
+          total,
+          data,
+        })
+      );
+
+    } catch (err: any) {
+      return res.json(errorResponse(err.message));
+    }
+  },
+
   // 🟡 Update Run
   async update(req: Request, res: Response) {
     try {

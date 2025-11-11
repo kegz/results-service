@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface IResult extends Document {
   testId: Types.ObjectId;
+  projectId: Types.ObjectId;
   status: "Passed" | "Failed" | "Blocked" | "Skipped" | "Retest";
   executedBy?: Types.ObjectId;
   startTime?: Date;
@@ -14,6 +15,7 @@ export interface IResult extends Document {
 const ResultSchema = new Schema<IResult>(
   {
     testId: { type: Schema.Types.ObjectId, ref: "Test", required: true },
+    projectId: { type: Schema.Types.ObjectId, ref: "Project", required: true },
     status: {
       type: String,
       enum: ["Passed", "Failed", "Blocked", "Skipped", "Retest"],
